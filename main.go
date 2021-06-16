@@ -139,6 +139,6 @@ func main() {
 	http.HandleFunc("/move", HandleMove)
 	http.HandleFunc("/end", HandleEnd)
 
-	fmt.Printf("Starting Battlesnake Server at http://0.0.0.0:%s...\n", port)
+	fmt.Printf("Starting Battlesnake Server at http://0.0.0.0:%s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
