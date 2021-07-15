@@ -1,10 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
-	"os"
 )
 
 type Game struct {
@@ -34,14 +35,6 @@ type Board struct {
 	Snakes []Battlesnake `json:"snakes"`
 }
 
-type BattlesnakeInfoResponse struct {
-	APIVersion string `json:"apiversion"`
-	Author     string `json:"author"`
-	Color      string `json:"color"`
-	Head       string `json:"head"`
-	Tail       string `json:"tail"`
-}
-
 type GameRequest struct {
 	Game  Game        `json:"game"`
 	Turn  int         `json:"turn"`
@@ -54,17 +47,28 @@ type MoveResponse struct {
 	Shout string `json:"shout,omitempty"`
 }
 
-func main() {
-	port := os.Getenv("PORT")
-	if len(port) == 0 {
-		port = "8080"
+// HandleMove is called for each turn of each game.
+// Valid responses are "up", "down", "left", or "right".
+// TODO: Use the information in the GameRequest object to determine your next move.
+func HandleMove(w http.ResponseWriter, r *http.Request) {
+	request := GameRequest{}
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	http.HandleFunc("/", HandleIndex)
-	http.HandleFunc("/start", HandleStart)
-	http.HandleFunc("/move", HandleMove)
-	http.HandleFunc("/end", HandleEnd)
+	// Choose a random direction to move in
+	possibleMoves := []string{"up", "down", "left", "right"}
+	move := possibleMoves[rand.Intn(len(possibleMoves))]
 
-	fmt.Printf("Starting Battlesnake Server at http://0.0.0.0:%s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	response := MoveResponse{
+		Move: move,
+	}
+
+	fmt.Printf("MOVE: %s\n", response.Move)
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
