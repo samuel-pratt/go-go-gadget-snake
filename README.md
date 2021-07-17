@@ -1,4 +1,4 @@
-# Go Go Gadget Snake
+# battlesnake 2021
 
 An ai for battlesnake to help me learn go.
 
